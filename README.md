@@ -1,4 +1,4 @@
-# TerraScope AI
+# TerraScope-AI
 
 **Satellite Image Change Detection with Deep Learning**
 
