@@ -63,6 +63,20 @@ TerraScope-AI/
 
 Training configurations, random seeds, evaluation procedures and experiment results will be documented as development progresses.
 
+## Local demo
+
+Run the interactive demo from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe .\app\gradio_app.py
+```
+
+The current local environment uses Python 3.14.7 and Gradio 6.30.0. The app
+includes a narrow compatibility shim for Gradio's eager event-loop creation on
+Windows. If the interpreter itself still hangs while creating a socket pair,
+recreate the virtual environment with a supported, stable Python release
+before treating the local launch as verified.
+
 ## Limitations
 
 The system is an educational research prototype. Predictions depend on the dataset, image quality, spatial alignment and the characteristics of the training data.
