@@ -2,19 +2,20 @@
 import sys
 from pathlib import Path
 
-import gradio as gr
-import numpy as np
-from PIL import Image
-
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from app.gradio_compat import configure_localhost_proxy_bypass
+
+
+configure_localhost_proxy_bypass()
+
+import gradio as gr
+import numpy as np
+from PIL import Image
+
 from src.predictor import ChangePredictor
-from app.gradio_compat import configure_gradio_runtime
-
-
-configure_gradio_runtime()
 
 
 # ============================================================

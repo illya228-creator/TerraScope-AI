@@ -1,14 +1,18 @@
-import asyncio
+import os
+
+from httpx._utils import get_environment_proxies
+
+from app.gradio_compat import configure_localhost_proxy_bypass
 
 
-def test_gradio_runtime_configuration_allows_blocks_construction():
-    """The compatibility shim must not create a Windows event loop eagerly."""
-    import gradio as gr
+def test_localhost_proxy_bypass_is_configured(monkeypatch):
+    monkeypatch.delenv("NO_PROXY", raising=False)
 
-    from app.gradio_compat import configure_gradio_runtime
+    configure_localhost_proxy_bypass()
 
-    configure_gradio_runtime()
-    demo = gr.Blocks(analytics_enabled=False)
-
-    assert isinstance(demo._queue.pending_message_lock, asyncio.Lock)
-    assert isinstance(demo._queue.delete_lock, asyncio.Lock)
+    configured_hosts = set(os.environ["NO_PROXY"].split(","))
+    assert {"127.0.0.1", "localhost", "::1"} <= configured_hosts
+    assert os.environ["no_proxy"] == os.environ["NO_PROXY"]
+    proxies = get_environment_proxies()
+    assert proxies["all://127.0.0.1"] is None
+    assert proxies["all://localhost"] is None

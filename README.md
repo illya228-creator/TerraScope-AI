@@ -71,11 +71,9 @@ Run the interactive demo from the repository root:
 .\.venv\Scripts\python.exe .\app\gradio_app.py
 ```
 
-The current local environment uses Python 3.14.7 and Gradio 6.30.0. The app
-includes a narrow compatibility shim for Gradio's eager event-loop creation on
-Windows. If the interpreter itself still hangs while creating a socket pair,
-recreate the virtual environment with a supported, stable Python release
-before treating the local launch as verified.
+The local environment uses a system proxy. The app explicitly bypasses it for
+`127.0.0.1`, `localhost`, and `::1` so that Gradio's launch self-check reaches
+the locally started server.
 
 ## Limitations
 

@@ -1,38 +1,27 @@
 
-"""Small, version-scoped workarounds for the local Gradio runtime."""
+"""Runtime configuration for the local Gradio process."""
 
 from __future__ import annotations
 
-import asyncio
+import os
 
-import gradio as gr
+LOCALHOST_BYPASS = ("127.0.0.1", "localhost", "::1")
 
 
-def configure_gradio_runtime() -> None:
-    """Avoid Gradio creating an unused event loop during app construction.
+def configure_localhost_proxy_bypass() -> None:
+    """Ensure Gradio's self-check reaches its local server directly.
 
-    Gradio 6.30 creates a new event loop just to construct locks when no loop is
-    running.  In the local Python 3.14 installation that reaches a hanging
-    ``socket.socketpair()`` fallback on Windows.  ``asyncio`` primitives are
-    safely created without a loop and bind lazily when the server runs.
-
-    This patches only Gradio's two internal aliases; it does not alter the
-    application event loop or inference behaviour.
+    HTTPX reads the Windows proxy setting but does not import its registry
+    exceptions. Gradio uses HTTPX to request ``/gradio_api/startup-events``
+    during launch, so localhost must be listed in the standard environment
+    bypass variable before Gradio is imported.
     """
-    import gradio.queueing as queueing
-    import gradio.utils as utils
-
-    queueing.safe_get_lock = asyncio.Lock
-    utils.safe_get_lock = asyncio.Lock
-    utils.safe_get_stop_event = asyncio.Event
-
-
-def apply_gradio_compatibility(demo):
-    """
-    Compatibility workaround for Gradio versions whose theme.css
-    endpoint expects the Blocks.theme_css attribute.
-    """
-    if not hasattr(demo, "theme_css"):
-        demo.theme_css = ""
-
-    return demo
+    configured_hosts = {
+        host.strip().lower()
+        for host in os.environ.get("NO_PROXY", "").split(",")
+        if host.strip()
+    }
+    configured_hosts.update(LOCALHOST_BYPASS)
+    value = ",".join(sorted(configured_hosts))
+    os.environ["NO_PROXY"] = value
+    os.environ["no_proxy"] = value
